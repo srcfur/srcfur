@@ -1,7 +1,42 @@
 doctype html
+
+mixin fluxerpanel(user)
+  .fluxerpanel(user=user)
+    span
+      img(src="https://cdn.bsky.app/img/avatar/plain/did:plc:4htjzi56tidxk2oou43niwr6/bafkreidunwc7gvr2ek5m26qxnsy44nciuwxnolby24z4jpqiyd3ni2mzzu")
+    span
+      p Loading...
+
 html
   head
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
+    script(src="/javascripts/API.js")
   body
+    +fluxerpanel("local")
     block content
+    script.
+      function OnLoaded(){
+        console.log("UwU")
+        let fluxerpanels = document.getElementsByClassName("fluxerpanel")
+        for (let i = 0; i < fluxerpanels.length; i++) {
+          let panel = fluxerpanels[i];
+          GetAccount().then((account)=>{
+            if(account == 401){
+              panel.children[1].removeChild(panel.children[1].children[0]);
+              let loginlink = document.createElement("a")
+              loginlink.innerText = "Login with Fluxer"
+              loginlink.href="https://web.canary.fluxer.app/oauth2/authorize?client_id=1552111823480696833&scope=identify+email&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauthorize&response_type=code"
+              panel.children[1].appendChild(loginlink);
+              return;
+            }
+            panel.children[0].children[0].src = "https://fluxerusercontent.com/avatars/" + account.id + "/" + account.avatar + ".webp?size=128"
+            panel.children[1].children[0].innerHTML = account.global_name;
+          })
+        }
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', OnLoaded);
+      } else {
+        OnLoaded(); // DOM already ready, run immediately
+      }

@@ -6,3 +6,35 @@ body {
 a {
   color: #00B7FF;
 }
+
+
+.fluxerpanel {
+  background: #00B7FF;
+  display: flex;
+  justify-content: left;
+  align-items: center;
+}
+
+.fluxerpanel span {
+  display:inline-block;
+}
+
+.fluxerpanel span img {
+  height: 4rem;
+}
+
+.fluxerpanel span p {
+  color: #fff;
+  font-size: 2rem;
+  margin:0px;
+  vertical-align: center;
+}
+
+.fluxerpanel span a {
+  color: #f5b7ff;
+  font-size: 2rem;
+  margin:0px;
+  vertical-align: center;
+  font-style: italic;
+  text-decoration: none;
+}

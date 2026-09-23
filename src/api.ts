@@ -20,7 +20,7 @@ router.get("/authorize", (req: Request<{}, {}, {}, AuthorizationQuery>, res) => 
         if(result.loggedin){
             res.cookie("fluxer_token", result.access_token);
             res.cookie("fluxer_refresh", result.refresh_token);
-            res.redirect("/api/account");
+            res.redirect("/");
         }
     })
 });
