@@ -4,3 +4,5 @@ lib
 node_modules
 public/javascripts/templates/*
 server.db
+public/images/gallery/*
+public/images/thumbnails/*
