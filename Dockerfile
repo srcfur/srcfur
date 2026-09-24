@@ -1,5 +1,6 @@
 # Stage 1: Install dependencies
 FROM node:22-alpine AS builder
+ENV JOBS=2
 RUN apk add --no-cache python3 make g++
 WORKDIR /app
 COPY tsconfig.json ./
@@ -10,6 +11,7 @@ RUN npm run build
 
 # Stage 2: Production
 FROM node:22-alpine AS runner
+ENV JOBS=2
 RUN apk add --no-cache python3 make g++
 WORKDIR /app
 # Create a non-root user for security
