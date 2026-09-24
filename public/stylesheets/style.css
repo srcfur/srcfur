@@ -7,7 +7,7 @@ body {
 }
 @keyframes scroll-xy {
   from { background-position: 0 0; }
-  to   { background-position: -512px -512px; } /* Adjust to image width */
+  to   { background-position: -512px 512px; } /* Adjust to image width */
 }
 
 a {

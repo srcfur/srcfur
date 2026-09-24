@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS gallery_image (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    post_id INTEGER NOT NULL,
+    image_path TEXT NOT NULL
+);

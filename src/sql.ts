@@ -1,5 +1,4 @@
 import Database from "better-sqlite3"
-import fs from "fs"
 
 export interface GalleryPostData {
     id: number;
