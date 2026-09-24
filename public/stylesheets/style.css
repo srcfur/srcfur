@@ -118,7 +118,6 @@ a {
 
 #postpopup {
   position:fixed;
-  bottom:0px;
   height: 100vh;
   width:fit-content;
   min-width: 60vw;
@@ -129,6 +128,29 @@ a {
   z-index: 10;
   overflow-y: auto;
   overscroll-behavior: contain;
+  animation: postpopin 0.25s linear forwards;
+}
+
+#postpopup.removing {
+  animation: postpopout 0.25s linear forwards;
+}
+
+@keyframes postpopin {
+  from {
+    bottom: -100%;
+  }
+  to {
+    bottom: 0px;
+  }
+}
+
+@keyframes postpopout {
+  from {
+    bottom:0px;
+  }
+  to {
+    bottom: -100%;
+  }
 }
 
 #postpopup > div {

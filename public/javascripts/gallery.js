@@ -67,9 +67,12 @@ function buildPostPreview(context){
         setup_carousel(post_preview_window.querySelector(".track"));
         function clickOff(event){
             if (!post_preview_window.contains(event.target)) {
-                post_preview_window.remove();
+                post_preview_window.classList.add("removing");
                 document.querySelector("#galleryBlock").inert = false;
                 document.removeEventListener('click', clickOff);
+                setTimeout(()=>{
+                    post_preview_window.remove();
+                }, 1000);
             }
         }
         document.addEventListener('click', clickOff);
