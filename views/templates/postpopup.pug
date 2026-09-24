@@ -1,0 +1,8 @@
+#postpopup
+    div
+        h1=post_name
+        .postCarousel
+            .track
+                for post_img in images
+                    img(src=post_img.image_path loading="lazy")
+        h2=post_description

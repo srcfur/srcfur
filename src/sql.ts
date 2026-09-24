@@ -26,3 +26,19 @@ export function AppendImageToGalleryPost(PostID: number, ImagePath:string){
         database.prepare("INSERT INTO gallery_image(post_id, image_path) VALUES (" + PostID.toString() + ", '" + ImagePath + "');");
     query.run();
 }
+
+export function GetGalleryPage(page:number, pagesize:number): GalleryPostData[] {
+    let query =
+        database.prepare("SELECT * FROM gallery_posts ORDER BY id DESC LIMIT " + pagesize + " OFFSET " + (page * pagesize).toString() + ";");
+    return query.all() as GalleryPostData[];
+}
+
+export function GetGalleryPostCount(){
+    return (database.prepare("SELECT COUNT(*) FROM gallery_posts").get() as any)["COUNT(*)"] as number;
+}
+
+export function GetImagesFromGalleryPost(postId:number){
+    let query =
+        database.prepare("SELECT `image_path` FROM gallery_image WHERE post_id = " + postId + ";");
+    return query.all() as string[];
+}

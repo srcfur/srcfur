@@ -1,21 +1,31 @@
 doctype html
 
-mixin fluxerpanel(user)
-  .fluxerpanel(user=user)
-    span
-      img(src="https://cdn.bsky.app/img/avatar/plain/did:plc:4htjzi56tidxk2oou43niwr6/bafkreidunwc7gvr2ek5m26qxnsy44nciuwxnolby24z4jpqiyd3ni2mzzu")
-    span
-      p Loading...
+include universalelments
 
 html
   head
-    title= title
+    title="Srcfur - " + title
     link(rel='stylesheet', href='/stylesheets/style.css')
     script(src="/javascripts/API.js")
   body
-    +fluxerpanel("local")
+    #navBar
+      .header
+        h1 Srcfur's Gay Lil Puppy Pound
+        h2=title
+      div
+        .nbc
+          a(href="/gallery", class="easyCenter")
+            h1 Gallery
+      div
+        .nbc
+          a(href="https://web.canary.fluxer.app/oauth2/authorize?client_id=1552111823480696833&scope=identify+email&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauthorize&response_type=code")
+            h1 Login
+      .fluxerViewingAs
+        .nbc
+          p Viewing as:
+          +fluxerpanel("local")
     block content
-    script.
+    script(type="module").
       function OnLoaded(){
         console.log("UwU")
         let fluxerpanels = document.getElementsByClassName("fluxerpanel")

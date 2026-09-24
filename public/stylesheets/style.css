@@ -1,18 +1,73 @@
 body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background-image: url("/images/background.png");
+  animation: scroll-xy 10s linear infinite;
+  color: #ecc3fa;
+}
+@keyframes scroll-xy {
+  from { background-position: 0 0; }
+  to   { background-position: -512px -512px; } /* Adjust to image width */
 }
 
 a {
   color: #00B7FF;
 }
 
+#navBar {
+  display:flex;
+  flex-display: row;
+  justify-content:space-between;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.61);
+
+  color: #ecc3fa;
+}
+
+#navBar > div {
+  flex-grow: 1;
+}
+
+#navBar a {
+  text-decoration: none;
+  color: inherit;
+}
+
+#navBar .nbc {
+  width: fit-content;
+  position:relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#navBar > .header {
+  flex-grow: 3;
+}
+#navBar > .header h1 {
+  padding-left: 1rem;
+  margin-bottom: 0px;
+}
+#navBar > .header h2 {
+  padding-left: 3rem;
+  margin-top: 0px;
+}
+
+#navBar h1 {
+  font-size: 2rem;
+}
+
+.fluxerViewingAs p {
+  margin: 0px;
+  font-weight: bold;
+}
 
 .fluxerpanel {
-  background: #00B7FF;
+  background: #ff224b;
   display: flex;
   justify-content: left;
   align-items: center;
+  padding: 0.35rem;
+  width:fit-content;
 }
 
 .fluxerpanel span {
@@ -37,4 +92,80 @@ a {
   vertical-align: center;
   font-style: italic;
   text-decoration: none;
+}
+
+#galleryBlock {
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(196px, 1fr));
+  gap: 0.25rem;
+}
+
+#galleryBlock .GalleryPost {
+  width:100%;
+  height:100%;
+  transition: transform 0.15s ease-out;
+}
+
+#galleryBlock .GalleryPost:hover {
+  transform: scale(1.1) rotate3d(0, 0, 1, -5deg);
+  z-index: 1;   /* keep it above neighbors */
+  filter: drop-shadow(0px 0px 4px rgb(220, 148, 255));
+}
+
+#galleryBlock img {
+  width: 100%;
+}
+
+#postpopup {
+  position:fixed;
+  bottom:0px;
+  height: 100vh;
+  width:fit-content;
+  min-width: 60vw;
+  max-width: 100vw;
+  left:50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 10;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+#postpopup > div {
+  position: relative;
+  height: fit-content;
+  padding: 2rem;
+}
+
+#postpopup h1 {
+  font-size: 4rem;
+  margin-bottom: 4px;
+  width: 100%;
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
+#postpopup .postCarousel {
+  width: 100%;
+  min-width: 800px;
+}
+
+.postCarousel > .track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;   /* don't trigger browser back-swipe */
+  scrollbar-width: none;            /* hide scrollbar (Firefox) */
+}
+.postCarousel > .track::-webkit-scrollbar {
+  display: none;
+}
+
+.postCarousel > .track img {
+  flex: 0 0 100%;                   /* one image per "page" */
+  width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;         /* can't fling past multiple images */
 }

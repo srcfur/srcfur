@@ -18,6 +18,9 @@ export type FluxerUserInfo = {
 
 export const GetAuth = async (authkey: string)=>{
     try{
+        if(process.env.client_id === undefined || process.env.client_secret === undefined){
+            throw new Error("No client secret provided");
+        }
         const formdata = new FormData();
         formdata.append("client_id", process.env.client_id);
         formdata.append("client_secret", process.env.client_secret);

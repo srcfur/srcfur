@@ -3,18 +3,22 @@ import {Router} from "express";
 import {Request} from "express";
 import * as fluxer from "./fluxer";
 import * as sql from "./sql";
-import {GetUser} from "./fluxer";
+import {FluxerUserInfo, GetUser} from "./fluxer";
 import multer = require("multer");
 import {GalleryPostData} from "./sql";
 import * as sharp from "sharp";
+import {createRateLimiter} from "./ratelimiter";
 
-
+const PAGE_SIZE: number = 30;
 
 export const router: Router = express.Router();
 
 interface AuthorizationQuery {
     code?: string;
 }
+
+const fluxer_ratelimit = createRateLimiter({api: "fluxer", max: 10})
+const backend_ratelimiter = createRateLimiter({ api: "backend", max: 100 })
 
 const galleryStorage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -25,7 +29,7 @@ const galleryStorage = multer.diskStorage({
     }
 })
 
-router.get("/authorize", (req: Request<{}, {}, {}, AuthorizationQuery>, res) => {
+router.get("/authorize", fluxer_ratelimit, (req: Request<{}, {}, {}, AuthorizationQuery>, res) => {
     if(req.query.code == undefined){
         res.status(401).end();
         return;
@@ -39,7 +43,7 @@ router.get("/authorize", (req: Request<{}, {}, {}, AuthorizationQuery>, res) => 
     })
 });
 
-router.get("/account", (req, res) => {
+router.get("/account", fluxer_ratelimit, (req, res) => {
     if(req.cookies["fluxer_token"] == undefined){
         res.status(401).end();
         return;
@@ -50,30 +54,54 @@ router.get("/account", (req, res) => {
 })
 
 //401 lacks fluxer token, or is not allowed to post!
-router.post("/gallery/upload", multer({ storage: galleryStorage }).array("image", 9), (req, res) => {
+router.post("/gallery/upload", backend_ratelimiter, multer({ storage: galleryStorage }).array("image", 9), (req, res) => {
     if(req.cookies["fluxer_token"] == undefined){
         res.status(401).end();
         return;
     }
-    if(req.files.length == 0 || req.body.title == undefined || req.body.description == undefined) {
+    if(req.files == undefined || req.files.length == 0 || req.body.title == undefined || req.body.description == undefined) {
         res.status(400).end();
         return;
     }
     GetUser(req.cookies["fluxer_token"]).then((profile)=>{
-        if(!fluxer.IsUserAllowedToPost(profile)){
+        if(profile == undefined){
+            res.status(401).end();
+            return;
+        }
+        if(!fluxer.IsUserAllowedToPost(profile as FluxerUserInfo)){
             res.status(401).end();
             return;
         }
         let post: GalleryPostData = sql.CreateGalleryPost(req.body.title, req.body.description);
-        // @ts-ignore
-        for(let i:number = 0; i < req.files.length; i++){
-            console.log(req.files[i]);
-            let path: string = req.files[i].path;
+        let fileArray: Express.Multer.File[] = req.files as any as Express.Multer.File[];
+        for(let i:number = 0; i < fileArray.length; i++){
+            console.log(fileArray[i]);
+            let path: string = fileArray[i].path;
             sql.AppendImageToGalleryPostData(post, path.substring("public".length).replace('\\', '/'));
         }
-        sharp.default(req.files[0].path)
+        sharp.default(fileArray[0].path)
             .resize(256, 256)
             .toFile('public/images/thumbnails/' + post.id.toString() + ".jpg");
         res.status(201).send(post).end();
     })
+})
+
+router.get("/gallery/page/:id", createRateLimiter({max: 50}), (req, res) => {
+    if(Number.isNaN(req.params.id)){
+        res.status(400).end();
+        return;
+    }
+    let page:number = parseInt(<string>req.params.id);
+    let postCount:number = sql.GetGalleryPostCount();
+    let nextPagePresent: boolean = postCount - (page * PAGE_SIZE + PAGE_SIZE) > 0;
+    res.status(200).send({ posts: sql.GetGalleryPage(page, PAGE_SIZE), hasNextPage: nextPagePresent }).end();
+})
+
+router.get("/gallery/post/:id", createRateLimiter({max: 50}), (req, res) => {
+    if(Number.isNaN(req.params.id)){
+        res.status(400).end();
+        return;
+    }
+    let post:number = parseInt(<string>req.params.id);
+    res.status(200).send({ images: sql.GetImagesFromGalleryPost(post), comments: [] })
 })
