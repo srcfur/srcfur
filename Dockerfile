@@ -27,7 +27,8 @@ COPY --from=builder --chown=srcfurwebsite:furgroup /app/server.db ./server.db
 ENV NODE_ENV=production
 # Expose the application port
 EXPOSE 3000
-RUN chmod 777 ./server.db
+RUN chown srcfurwebsite:furgroup -R .
+RUN chmod 664 -R .
 # Switch to non-root user
 USER srcfurwebsite
 # Start the application
