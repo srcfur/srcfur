@@ -72,7 +72,7 @@ function buildPostPreview(context){
                 document.removeEventListener('click', clickOff);
                 setTimeout(()=>{
                     post_preview_window.remove();
-                }, 1000);
+                }, 300);
             }
         }
         document.addEventListener('click', clickOff);
