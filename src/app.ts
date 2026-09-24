@@ -29,3 +29,6 @@ fs.readdir("views/templates", (err, files) => {
         fs.writeFileSync("public/javascripts/templates.js", output);
     })
 })
+
+fs.mkdir("public/images/gallery", (err) => {});
+fs.mkdir("public/images/thumbnails", (err) => {});
