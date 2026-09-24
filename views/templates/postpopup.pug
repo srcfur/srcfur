@@ -6,3 +6,9 @@
                 for post_img in images
                     img(src=post_img.image_path loading="lazy")
         h2=post_description
+        .commentWriter
+            h2 Leave a comment
+            textarea
+            .right
+                button submit
+        .commentSection

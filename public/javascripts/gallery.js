@@ -46,6 +46,16 @@ function setup_carousel(carousel){
     carousel.addEventListener('pointercancel', stop);
     carousel.addEventListener('click', (e) => { if (moved) e.preventDefault(); }, true);
 }
+function build_comments(context, commentSection){
+    commentSection.innerHTML = "";
+
+    for(let i = 0; i < context.comments.length; i++){
+        const comment = context.comments[i];
+        let template = document.createElement("template");
+        template.innerHTML = templates.postcomment(comment);
+        commentSection.appendChild(template.content.firstElementChild);
+    }
+}
 function buildPostPreview(context){
     //Our expanded context gets the images and comments and stats and what not :P
     //Basically expands the original context with the full post information!
@@ -75,7 +85,25 @@ function buildPostPreview(context){
                 }, 300);
             }
         }
+        const commentWriter = post_preview_window.querySelector(".commentWriter")
+        commentWriter.querySelector("button").onclick = (e) => {
+            let comment = commentWriter.querySelector("textarea").value;
+            if(comment.length <= 2){
+                return;
+            }
+            let data = new FormData();
+            data.set("comment", comment);
+            data.set("post", context.id);
+            fetch("/api/gallery/comment", { method: 'POST', body: data }).then(async (response) => {
+                if(!response.ok){
+                    console.error(response.status);
+                    return;
+                }
+                build_comments(await response.json(), post_preview_window.querySelector(".commentSection"))
+            })
+        }
         document.addEventListener('click', clickOff);
+        build_comments(expandedContext, post_preview_window.querySelector(".commentSection"));
         document.body.appendChild(template.content.firstElementChild);
     })
 }

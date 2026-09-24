@@ -12,7 +12,7 @@ export type FluxerUserInfo = {
     username: string,
     discriminator: string,
     global_name: string,
-    avatar_url: string,
+    avatar: string,
     verified: boolean,
 }
 

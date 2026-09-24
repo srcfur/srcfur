@@ -129,6 +129,7 @@ a {
   overflow-y: auto;
   overscroll-behavior: contain;
   animation: postpopin 0.25s linear forwards;
+  scrollbar-width: none;
 }
 
 #postpopup.removing {
@@ -204,3 +205,74 @@ a {
 .track::scroll-marker-group { display: flex; justify-content: center; gap: 6px; }
 .track img::scroll-marker { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #ccc; }
 .track img::scroll-marker:target-current { background: #333; }
+
+.commentWriter {
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+}
+
+.commentWriter h2 {
+  margin-bottom: 0px;
+}
+
+.commentWriter > textarea {
+  height: 4rem;
+  font-size: 1rem;
+  color: inherit;
+  background-color: transparent;
+  resize: none;
+  border: 2px solid red;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.commentWriter > .right {
+  display: flex;
+  height: fit-content;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.commentWriter button {
+  width: fit-content;
+  background-color: black;
+  border: 2px solid red;
+  border-radius: 12px;
+  margin: 4px;
+  color: red;
+  font-size: 1.5rem;
+}
+
+.commentWriter > textarea:focus {
+  outline: none;
+}
+
+.comment {
+  display: flex;
+  flex-direction: row;
+  height: fit-content;
+}
+.comment > .author {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.author img {
+  object-fit: contain;
+  flex-shrink: 1;
+}
+.author h2 {
+  flex-grow: 1;
+  margin-top: 4px;
+}
+
+.comment p {
+  font-size: 1.5rem;
+  font-weight: lighter;
+  margin-top: 0px;
+  margin-right: 16px;
+}

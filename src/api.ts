@@ -103,5 +103,36 @@ router.get("/gallery/post/:id", createRateLimiter({max: 50}), (req, res) => {
         return;
     }
     let post:number = parseInt(<string>req.params.id);
-    res.status(200).send({ images: sql.GetImagesFromGalleryPost(post), comments: [] })
+    res.status(200).send({ images: sql.GetImagesFromGalleryPost(post), comments: sql.GetCommentsOnPost(post, true) })
+})
+
+router.post("/gallery/comment", multer({ storage: galleryStorage }).none(), createRateLimiter({ max: 10 }), async (req, res) => {
+    let identifier: string = req.ip as string;
+    let authorname: string = "Anonymous";
+    let author_avatar: string = "/images/anonymous.webp";
+    let scrub_ids: boolean = true;
+    if(req.headers["CF-Connecting-IPv6"] != undefined) {
+        identifier = req.headers["CF-Connecting-IPv6"].toString();
+    }
+    if(req.body == undefined){
+        res.status(400).end();
+        return;
+    }
+    if(req.body.comment == undefined || req.body.post == undefined){
+        res.status(400).end();
+        return;
+    }
+    const comment:string = req.body.comment;
+    const targetpost:number = parseInt(<string>req.body.post)
+    if(req.cookies["fluxer_token"] != undefined){
+        let user:fluxer.FluxerUserInfo | undefined = await fluxer.GetUser(req.cookies["fluxer_token"]);
+        if(user != undefined){
+            identifier = user.id;
+            authorname = user.global_name;
+            author_avatar = "https://fluxerusercontent.com/avatars/" + user.id + "/" + user.avatar + ".webp?size=128"
+            scrub_ids = !fluxer.IsUserAllowedToPost(user);
+        }
+    }
+    sql.CreateCommentOnPost(targetpost, comment, authorname, author_avatar, identifier);
+    res.status(201).send({comments: sql.GetCommentsOnPost(targetpost, scrub_ids) }).end();
 })

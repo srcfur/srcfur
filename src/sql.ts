@@ -7,6 +7,15 @@ export interface GalleryPostData {
     post_description: string;
 }
 
+export interface Comment {
+    comment_id: number;
+    post_id: number;
+    author_name: string;
+    author_avatar: string;
+    comment_content: string,
+    author_identifier: string;
+}
+
 export const database = new Database('server.db', {});
 export function CreateGalleryPost(PostName:string, PostDescription:string){
     let isoString = new Date(Date.now()).toISOString();
@@ -40,4 +49,21 @@ export function GetImagesFromGalleryPost(postId:number){
     let query =
         database.prepare("SELECT `image_path` FROM gallery_image WHERE post_id = " + postId + ";");
     return query.all() as string[];
+}
+
+export function CreateCommentOnPost(postId: number, comment: string, authorname: string, authoravatar: string, identifier: string) {
+    let query =
+        database.prepare("INSERT INTO gallery_comment(comment_content, author_avatar, author_name, author_identifier, post_id) " +
+            " VALUES ('" + comment + "', '" + authoravatar + "', '" + authorname + "', '" + identifier + "', '" + postId + "') ");
+    query.run();
+}
+
+//Can be scrubbed of it's identifier to hide IP addresses!!!
+export function GetCommentsOnPost(postId: number, scrub:boolean){
+    let query =
+        database.prepare("SELECT * FROM gallery_comment WHERE post_id = " + postId + " ORDER BY comment_id DESC");
+    let raw = query.all() as Comment[];
+    if(scrub)
+        raw.forEach(comment => { comment.author_identifier = ""; })
+    return raw;
 }
