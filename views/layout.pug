@@ -28,20 +28,23 @@ html
     script(type="module").
       function OnLoaded(){
         console.log("UwU")
-        let fluxerpanels = document.getElementsByClassName("fluxerpanel")
+        let fluxerpanels = document.querySelectorAll(".fluxerpanel")
         for (let i = 0; i < fluxerpanels.length; i++) {
           let panel = fluxerpanels[i];
           GetAccount().then((account)=>{
             if(account == 401){
-              panel.children[1].removeChild(panel.children[1].children[0]);
-              let loginlink = document.createElement("a")
-              loginlink.innerText = "Login with Fluxer"
-              loginlink.href="https://web.canary.fluxer.app/oauth2/authorize?client_id=1552111823480696833&scope=identify+email&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauthorize&response_type=code"
-              panel.children[1].appendChild(loginlink);
               return;
             }
             panel.children[0].children[0].src = "https://fluxerusercontent.com/avatars/" + account.id + "/" + account.avatar + ".webp?size=128"
             panel.children[1].children[0].innerHTML = account.global_name;
+            let logout = document.createElement("a")
+            logout.style = "position: absolute; right: 0px; bottom: 0px; cursor: pointer;"
+            logout.text = "Logout";
+            logout.onclick = (e) => {
+              document.cookie = "fluxer_token=;";
+              window.location.reload()
+            }
+            panel.appendChild(logout);
           })
         }
       }

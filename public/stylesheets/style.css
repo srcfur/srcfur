@@ -259,9 +259,11 @@ a {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: center;
 }
 
 .author img {
+  width: 256px;
   object-fit: contain;
   flex-shrink: 1;
 }
@@ -273,6 +275,7 @@ a {
 .comment p {
   font-size: 1.5rem;
   font-weight: lighter;
-  margin-top: 0px;
+  margin-top: 0.5rem;
   margin-right: 16px;
+  margin-left: 4px;
 }
