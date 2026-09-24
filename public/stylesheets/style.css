@@ -148,7 +148,11 @@ a {
 #postpopup .postCarousel {
   width: 100%;
   min-width: 800px;
+  user-select: none;
+  cursor: grab;
 }
+
+.postCarousel img { -webkit-user-drag: none; }
 
 .postCarousel > .track {
   display: flex;
@@ -160,6 +164,10 @@ a {
 .postCarousel > .track::-webkit-scrollbar {
   display: none;
 }
+.dragging.track {
+  cursor: grabbing;
+  scroll-snap-type: none;
+}
 
 .postCarousel > .track img {
   flex: 0 0 100%;                   /* one image per "page" */
@@ -169,3 +177,8 @@ a {
   scroll-snap-align: center;
   scroll-snap-stop: always;         /* can't fling past multiple images */
 }
+
+.track { scroll-marker-group: after; }
+.track::scroll-marker-group { display: flex; justify-content: center; gap: 6px; }
+.track img::scroll-marker { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #ccc; }
+.track img::scroll-marker:target-current { background: #333; }

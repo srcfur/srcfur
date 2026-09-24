@@ -21,6 +21,31 @@ function appendPage(page){
 function buildGallery(){
     appendPage(0);
 }
+function setup_carousel(carousel){
+    console.log(carousel);
+    let startX = 0, startScroll = 0, dragging = false, moved = false;
+
+    carousel.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0) return;              // left button only
+        dragging = true; moved = false;
+        startX = e.clientX;
+        startScroll = carousel.scrollLeft;
+        carousel.setPointerCapture(e.pointerId);
+        carousel.classList.add('dragging');
+    });
+
+    carousel.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        const dx = e.clientX - startX;
+        if (Math.abs(dx) > 5) moved = true;
+        carousel.scrollLeft = startScroll - dx;
+    });
+
+    const stop = () => { dragging = false; carousel.classList.remove('dragging'); };
+    carousel.addEventListener('pointerup', stop);
+    carousel.addEventListener('pointercancel', stop);
+    carousel.addEventListener('click', (e) => { if (moved) e.preventDefault(); }, true);
+}
 function buildPostPreview(context){
     //Our expanded context gets the images and comments and stats and what not :P
     //Basically expands the original context with the full post information!
@@ -39,8 +64,7 @@ function buildPostPreview(context){
         let template = document.createElement("template");
         template.innerHTML = templates.postpopup(expandedContext);
         const post_preview_window = template.content.firstElementChild;
-
-
+        setup_carousel(post_preview_window.querySelector(".track"));
         function clickOff(event){
             if (!post_preview_window.contains(event.target)) {
                 post_preview_window.remove();
