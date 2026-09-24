@@ -101,6 +101,7 @@ function buildPostPreview(context){
                 }
                 build_comments(await response.json(), post_preview_window.querySelector(".commentSection"))
             })
+            commentWriter.querySelector("textarea").value = "";
         }
         document.addEventListener('click', clickOff);
         build_comments(expandedContext, post_preview_window.querySelector(".commentSection"));

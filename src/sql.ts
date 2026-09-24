@@ -67,3 +67,7 @@ export function GetCommentsOnPost(postId: number, scrub:boolean){
         raw.forEach(comment => { comment.author_identifier = ""; })
     return raw;
 }
+
+export function IsIdentifierBanned(id:string){
+    return (database.prepare("SELECT COUNT(*) FROM banned_identifiers WHERE identifier = '" + id + "'").get() as any)["COUNT(*)"] as number > 0;
+}

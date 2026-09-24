@@ -122,6 +122,10 @@ router.post("/gallery/comment", multer({ storage: galleryStorage }).none(), crea
         res.status(400).end();
         return;
     }
+    if(sql.IsIdentifierBanned(identifier)){
+        res.status(401).end(); //Banned :3
+        return;
+    }
     const comment:string = req.body.comment;
     const targetpost:number = parseInt(<string>req.body.post)
     if(req.cookies["fluxer_token"] != undefined){
@@ -131,6 +135,11 @@ router.post("/gallery/comment", multer({ storage: galleryStorage }).none(), crea
             authorname = user.global_name;
             author_avatar = "https://fluxerusercontent.com/avatars/" + user.id + "/" + user.avatar + ".webp?size=128"
             scrub_ids = !fluxer.IsUserAllowedToPost(user);
+            //Check a second time, the first will always check ip. Second time will check if fluxer is banned!
+            if(sql.IsIdentifierBanned(identifier)){
+                res.status(401).end(); //Banned :3
+                return;
+            }
         }
     }
     sql.CreateCommentOnPost(targetpost, comment, authorname, author_avatar, identifier);
