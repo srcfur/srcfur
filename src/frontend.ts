@@ -13,9 +13,9 @@ interface GalleryQuery {
 //https://web.canary.fluxer.app/oauth2/authorize?client_id=1552111823480696833&scope=identify+email&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauthorize&response_type=code
 const loginLink = () => {
     let link = new URL("https://web.canary.fluxer.app/oauth2/authorize");
-    link.searchParams.append("client_id", process.env.client_id);
+    link.searchParams.append("client_id", process.env.client_id as string);
     link.searchParams.append("scope", "identify+email");
-    link.searchParams.append("redirect_uri", process.env.auth_url);
+    link.searchParams.append("redirect_uri", process.env.auth_url as string);
     link.searchParams.append("response_type", "code");
     return link;
 }

@@ -26,7 +26,7 @@ export const GetAuth = async (authkey: string)=>{
         formdata.append("client_secret", process.env.client_secret);
         formdata.append("code", authkey);
         formdata.append("grant_type", "authorization_code");
-        formdata.append("redirect_uri", process.env.auth_url);
+        formdata.append("redirect_uri", process.env.auth_url as string);
         var response = await apiClient.post("oauth2/token", formdata);
         console.log(response);
         response.data.loggedin = true;
