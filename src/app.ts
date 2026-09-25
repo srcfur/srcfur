@@ -3,6 +3,7 @@ import * as frontend from "./frontend"
 import * as api from "./api";
 import cookieparser from "cookie-parser";
 import * as fs from "fs";
+import {loadPosters} from "./posthandler";
 
 const app = express();
 
@@ -30,3 +31,5 @@ fs.readdir("views/templates", (err, files) => {
 
 fs.mkdir("public/images/gallery", (err) => {});
 fs.mkdir("public/images/thumbnails", (err) => {});
+
+loadPosters();

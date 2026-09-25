@@ -8,6 +8,7 @@ import multer = require("multer");
 import {GalleryPostData} from "./sql";
 import * as sharp from "sharp";
 import {createRateLimiter} from "./ratelimiter";
+import {Post, PostBuilder, UploadPost} from "./posthandler";
 
 const PAGE_SIZE: number = 30;
 
@@ -72,6 +73,7 @@ router.post("/gallery/upload", backend_ratelimiter, multer({ storage: gallerySto
             res.status(401).end();
             return;
         }
+        /*
         let post: GalleryPostData = sql.CreateGalleryPost(req.body.title, req.body.description);
         let fileArray: Express.Multer.File[] = req.files as any as Express.Multer.File[];
         for(let i:number = 0; i < fileArray.length; i++){
@@ -79,10 +81,24 @@ router.post("/gallery/upload", backend_ratelimiter, multer({ storage: gallerySto
             let path: string = fileArray[i].path;
             sql.AppendImageToGalleryPostData(post, path.substring("public".length).replace('\\', '/'));
         }
-        sharp.default(fileArray[0].path)
-            .resize(256, 256)
-            .toFile('public/images/thumbnails/' + post.id.toString() + ".jpg");
-        res.status(201).send(post).end();
+         */
+        let builder: PostBuilder = new PostBuilder();
+        builder.SetTitle(req.body.title);
+        builder.SetDescription(req.body.description);
+        let fileArray: Express.Multer.File[] = req.files as any as Express.Multer.File[];
+        for(let i:number = 0; i < fileArray.length; i++){
+            console.log(fileArray[i]);
+            let path: string = fileArray[i].path;
+            builder.AddFile(path);
+        }
+        builder.AddDestination("Gallery");
+        UploadPost(builder.Pack()).then((result)=>{
+            if(result.success){
+                res.status(200).end();
+            }else{
+                res.status(500).send(result.status).end();
+            }
+        });
     })
 })
 
