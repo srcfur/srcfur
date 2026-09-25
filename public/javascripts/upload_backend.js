@@ -8,10 +8,12 @@ function upload_handler(){
         fetch("/api/gallery/upload", { method: "POST", body: data }).then(async response => {
             if(!response.ok){
                 window.alert(response.status + ": " + await response.text());
+                e.target.inert = false;
                 return;
             }
             window.location.assign("/gallery");
         })
+        e.target.inert = true;
     })
 }
 
