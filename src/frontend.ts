@@ -21,11 +21,13 @@ const loginLink = () => {
     return link;
 }
 
+router.use(FluxerUserCheck);
+
 router.get("/", (req, res) => {
     res.send(pug.renderFile("views/index.pug", { title: "Homepage", loginlink: loginLink() }));
 })
 
-router.get("/upload", FluxerUserCheck, (req, res) => {
+router.get("/upload", (req, res) => {
     let check: FluxerRequest = req as FluxerRequest;
     if(check.fluxer_user === undefined){
         res.redirect("/gallery");
@@ -34,7 +36,7 @@ router.get("/upload", FluxerUserCheck, (req, res) => {
     res.send(pug.renderFile("views/upload_portal.pug", { title: "Upload Portal", loginlink: loginLink() }));
 })
 
-router.get("/gallery", FluxerUserCheck, (req: Request<{}, {}, {}, GalleryQuery>, res) => {
+router.get("/gallery", (req: Request<{}, {}, {}, GalleryQuery>, res) => {
     let check: FluxerRequest = req as FluxerRequest;
     let auth:boolean = false;
     if(check.fluxer_user !== undefined){

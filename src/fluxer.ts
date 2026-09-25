@@ -53,7 +53,7 @@ export const IsUserAllowedToPost = function (user: FluxerUserInfo){
 }
 
 export interface FluxerRequest extends Request {
-    fluxer_user: FluxerUserInfo | undefined;
+    fluxer_user?: FluxerUserInfo;
 }
 
 export const FluxerUserCheck = async function (req: FluxerRequest, res: Response, next: NextFunction) {
