@@ -1,13 +1,14 @@
 extends layout
 
 block content
+    script(type="module" src="/javascripts/upload_backend.js")
     link(rel='stylesheet', href='/stylesheets/back_portal.css')
     form(id="UploadForm" action="/api/gallery/upload" method="post" enctype="multipart/form-data")
         input(type="text" name="title")
         textarea(name="description")
         input(type="number" name="imagecount" value="0" min="0" max="9")
         #fileArea
-        input(type="submit")
+        input(type="submit" id="SubmitForm")
         script.
             function bindNumberAlloc(){
                 let uploadform = document.getElementById("UploadForm");
