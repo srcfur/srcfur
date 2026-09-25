@@ -6,7 +6,7 @@ import * as sql from "./sql.js";
 import {FluxerRequest, FluxerUserCheck, FluxerUserInfo, GetUser} from "./fluxer.js";
 import multer from "multer";
 import {createRateLimiter} from "./ratelimiter.js";
-import {GetAvailableDestinations, ImageVersion, Post, PostBuilder, UploadPost} from "./posthandler.js";
+import {GetAvailableDestinations, ImageVersion, Post, PostBuilder, PostStatus, UploadPost} from "./posthandler.js";
 
 const PAGE_SIZE: number = 30;
 
@@ -90,10 +90,18 @@ router.post("/gallery/upload", backend_ratelimiter, multer({ storage: gallerySto
             builder.AddDestination(dest);
         })
         UploadPost(builder.Pack()).then((result)=>{
-            if(result.success){
+            let didAllComplete:boolean = true;
+            result.forEach((status)=>{
+                didAllComplete = status.success && didAllComplete;
+            })
+            if(didAllComplete){
                 res.status(200).end();
             }else{
-                res.status(500).send(result.status).end();
+                let toFix: { Destination: string, status: PostStatus }[] = [];
+                result.forEach((status, key)=>{
+                    toFix.push( { Destination: key, status: status } )
+                })
+                res.status(500).send(toFix).end(); //409 causes auto reupload, 500 but means 409
             }
         });
     })

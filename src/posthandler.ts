@@ -1,4 +1,5 @@
 import fs from "fs";
+import Dict = NodeJS.Dict;
 
 export class ImageVersion {
     File: string;
@@ -64,6 +65,7 @@ export class PostStatus {
 class QueuedPost {
     Post: Post;
     NextDestination: number;
+    UploadStatus: Map<string, PostStatus>;
     // Iterates to the next destination to post to
     async Next(): Promise<PostStatus> {
         //If this is really less, we're FUCKED
@@ -80,11 +82,15 @@ class QueuedPost {
             return status;
         }
         this.NextDestination++;
-        return this.Next();
+        return new PostStatus("Success", true);
     }
     constructor(post: Post) {
         this.Post = post;
         this.NextDestination = 0;
+        this.UploadStatus = new Map<string, PostStatus>();
+        post.Destinations.forEach(dest => {
+            this.UploadStatus.set(dest, new PostStatus("Not started!", false));
+        })
     }
 }
 
@@ -121,4 +127,10 @@ export const GetAvailableDestinations = (): string[] => {
     return array;
 }
 
-export const UploadPost = (post: Post): Promise<PostStatus> => new QueuedPost(post).Next();
+export const UploadPost = async (post: Post): Promise<Map<string, PostStatus>> => {
+    const queue: QueuedPost = new QueuedPost(post);
+    while(queue.NextDestination < post.Destinations.length){
+        queue.UploadStatus.set(post.Destinations[queue.NextDestination], await queue.Next());
+    }
+    return queue.UploadStatus;
+}

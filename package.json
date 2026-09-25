@@ -13,6 +13,7 @@
     "@atproto/lex-password-session": "^0.2.3",
     "axios": "^1.20.0",
     "better-sqlite3": "^13.0.3",
+    "cheerio": "^1.2.0",
     "cookie-parser": "^1.4.7",
     "debug": "~2.6.9",
     "dotenv": "^18.0.3",
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@types/axios": "^0.9.36",
     "@types/better-sqlite3": "^9.6.0",
+    "@types/cheerio": "^0.22.35",
     "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.6",
     "@types/multer": "^2.2.0",
