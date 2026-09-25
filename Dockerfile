@@ -7,6 +7,7 @@ COPY tsconfig.json ./
 COPY package*.json ./
 RUN npm ci
 COPY . .
+RUN npm run downloadlexicons
 RUN npm run build
 
 # Stage 2: Production
@@ -23,6 +24,8 @@ COPY --from=builder --chown=srcfurwebsite:furgroup /app/public ./public
 COPY --from=builder --chown=srcfurwebsite:furgroup /app/routes ./routes
 COPY --from=builder --chown=srcfurwebsite:furgroup /app/views ./views
 COPY --from=builder --chown=srcfurwebsite:furgroup /app/sqlsetup ./sqlsetup
+COPY --from=builder --chown=srcfurwebsite:furgroup /app/lexicons ./lexicons
+COPY --from=builder --chown=srcfurwebsite:furgroup /app/lexicons.json ./lexicons.json
 # Set environment variables
 ENV NODE_ENV=production
 # Expose the application port
