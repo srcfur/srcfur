@@ -2,10 +2,8 @@ import express = require('express');
 import * as frontend from "./frontend"
 import * as api from "./api";
 import cookieparser from "cookie-parser";
-import dotenv from "dotenv";
 import * as fs from "fs";
 
-dotenv.config();
 const app = express();
 
 app.use(cookieparser());

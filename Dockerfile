@@ -22,13 +22,12 @@ COPY --from=builder --chown=srcfurwebsite:furgroup /app/lib ./lib
 COPY --from=builder --chown=srcfurwebsite:furgroup /app/public ./public
 COPY --from=builder --chown=srcfurwebsite:furgroup /app/routes ./routes
 COPY --from=builder --chown=srcfurwebsite:furgroup /app/views ./views
-COPY --from=builder --chown=srcfurwebsite:furgroup /app/server.db ./server.db
 # Set environment variables
 ENV NODE_ENV=production
 # Expose the application port
 EXPOSE 3000
-RUN chown srcfurwebsite:furgroup -R .
-RUN chmod 664 -R .
+RUN chown -R srcfurwebsite .
+RUN chmod -R 777 .
 # Switch to non-root user
 USER srcfurwebsite
 # Start the application

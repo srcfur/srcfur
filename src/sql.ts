@@ -1,4 +1,5 @@
 import Database from "better-sqlite3"
+import fs from "fs"
 
 export interface GalleryPostData {
     id: number;
@@ -15,8 +16,19 @@ export interface Comment {
     comment_content: string,
     author_identifier: string;
 }
+if(process.env.DB_PATH == undefined){
+    throw new Error("NO DATABASE_PATH SPECIFIED!")
+}
+export const database = new Database(process.env.DB_PATH, {});
 
-export const database = new Database('server.db', {});
+fs.readdir("sqlsetup/", (err, files) => {
+    if (err) throw err;
+    files.forEach((file) => {
+        database.prepare(fs.readFileSync("sqlsetup/" + file).toString()).run();
+    })
+    console.log("Database initialized");
+})
+
 export function CreateGalleryPost(PostName:string, PostDescription:string){
     let isoString = new Date(Date.now()).toISOString();
     let query =

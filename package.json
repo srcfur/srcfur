@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "tsc && node ./lib/sqlbuilder.js",
+    "build": "tsc",
     "start": "node ./lib/app.js"
   },
   "dependencies": {
