@@ -9,7 +9,7 @@ import * as app from "../lexicons/app.js";
 async function Authenticate(): Promise<Client> {
     const account: PasswordSession = await PasswordSession.login({
         service: "https://bsky.social",
-        identifier: "srcfur.bsky.social",
+        identifier: "dreadroblox.bsky.social",
         password: process.env.BSKY_PASSWORD as string,
     });
     return new Client(account);
@@ -39,6 +39,9 @@ export const HandlePost= async (post: Post): Promise<PostStatus> => {
             let enctype: `${string}/${string}` = "image/none";
             if(file.endsWith(".jpg") || file.endsWith(".jpeg")){
                 enctype = "image/jpeg"
+            }
+            if(file.endsWith(".png")){
+                enctype = "image/png"
             }
             if(enctype == "image/none"){
                 console.warn(`Couldn't find type of ${file}`);
