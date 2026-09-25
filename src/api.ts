@@ -1,14 +1,12 @@
 import * as express from "express";
 import {Router} from "express";
 import {Request} from "express";
-import * as fluxer from "./fluxer";
-import * as sql from "./sql";
-import {FluxerUserInfo, GetUser} from "./fluxer";
-import multer = require("multer");
-import {GalleryPostData} from "./sql";
-import * as sharp from "sharp";
-import {createRateLimiter} from "./ratelimiter";
-import {Post, PostBuilder, UploadPost} from "./posthandler";
+import * as fluxer from "./fluxer.js";
+import * as sql from "./sql.js";
+import {FluxerRequest, FluxerUserCheck, FluxerUserInfo, GetUser} from "./fluxer.js";
+import multer from "multer";
+import {createRateLimiter} from "./ratelimiter.js";
+import {GetAvailableDestinations, Post, PostBuilder, UploadPost} from "./posthandler.js";
 
 const PAGE_SIZE: number = 30;
 
@@ -60,7 +58,7 @@ router.post("/gallery/upload", backend_ratelimiter, multer({ storage: gallerySto
         res.status(401).end();
         return;
     }
-    if(req.files == undefined || req.files.length == 0 || req.body.title == undefined || req.body.description == undefined) {
+    if(req.files == undefined || req.files.length == 0 || req.body.title == undefined || req.body.description == undefined || req.body.destinations == undefined) {
         res.status(400).end();
         return;
     }
@@ -73,15 +71,12 @@ router.post("/gallery/upload", backend_ratelimiter, multer({ storage: gallerySto
             res.status(401).end();
             return;
         }
-        /*
-        let post: GalleryPostData = sql.CreateGalleryPost(req.body.title, req.body.description);
-        let fileArray: Express.Multer.File[] = req.files as any as Express.Multer.File[];
-        for(let i:number = 0; i < fileArray.length; i++){
-            console.log(fileArray[i]);
-            let path: string = fileArray[i].path;
-            sql.AppendImageToGalleryPostData(post, path.substring("public".length).replace('\\', '/'));
+        let dests: string[] = [];
+        if(Array.isArray(req.body.destinations)){
+            dests = req.body.destinations;
+        }else{
+            dests.push(req.body.destinations);
         }
-         */
         let builder: PostBuilder = new PostBuilder();
         builder.SetTitle(req.body.title);
         builder.SetDescription(req.body.description);
@@ -91,7 +86,9 @@ router.post("/gallery/upload", backend_ratelimiter, multer({ storage: gallerySto
             let path: string = fileArray[i].path;
             builder.AddFile(path);
         }
-        builder.AddDestination("Gallery");
+        dests.forEach((dest) => {
+            builder.AddDestination(dest);
+        })
         UploadPost(builder.Pack()).then((result)=>{
             if(result.success){
                 res.status(200).end();
@@ -130,10 +127,6 @@ router.post("/gallery/comment", multer({ storage: galleryStorage }).none(), crea
     if(req.headers["CF-Connecting-IPv6"] != undefined) {
         identifier = req.headers["CF-Connecting-IPv6"].toString();
     }
-    if(req.body == undefined){
-        res.status(400).end();
-        return;
-    }
     if(req.body.comment == undefined || req.body.post == undefined){
         res.status(400).end();
         return;
@@ -142,22 +135,39 @@ router.post("/gallery/comment", multer({ storage: galleryStorage }).none(), crea
         res.status(401).end(); //Banned :3
         return;
     }
-    const comment:string = req.body.comment;
-    const targetpost:number = parseInt(<string>req.body.post)
-    if(req.cookies["fluxer_token"] != undefined){
-        let user:fluxer.FluxerUserInfo | undefined = await fluxer.GetUser(req.cookies["fluxer_token"]);
-        if(user != undefined){
-            identifier = user.id;
-            authorname = user.global_name;
-            author_avatar = "https://fluxerusercontent.com/avatars/" + user.id + "/" + user.avatar + ".webp?size=128"
-            scrub_ids = !fluxer.IsUserAllowedToPost(user);
-            //Check a second time, the first will always check ip. Second time will check if fluxer is banned!
-            if(sql.IsIdentifierBanned(identifier)){
-                res.status(401).end(); //Banned :3
-                return;
+    //Finally wrap this try catch cause users will send FUCK SHIT somehow surely.
+    try{
+        const comment:string = req.body.comment;
+        const targetpost:number = parseInt(<string>req.body.post)
+        if(req.cookies["fluxer_token"] != undefined){
+            let user:fluxer.FluxerUserInfo | undefined = await fluxer.GetUser(req.cookies["fluxer_token"]);
+            if(user != undefined){
+                identifier = user.id;
+                authorname = user.global_name;
+                author_avatar = "https://fluxerusercontent.com/avatars/" + user.id + "/" + user.avatar + ".webp?size=128"
+                scrub_ids = !fluxer.IsUserAllowedToPost(user);
+                //Check a second time, the first will always check ip. Second time will check if fluxer is banned!
+                if(sql.IsIdentifierBanned(identifier)){
+                    res.status(401).end(); //Banned :3
+                    return;
+                }
             }
         }
+        sql.CreateCommentOnPost(targetpost, comment, authorname, author_avatar, identifier);
+        res.status(201).send({comments: sql.GetCommentsOnPost(targetpost, scrub_ids) }).end();
+    }catch(e){
+        res.status(500);
+        if(process.env.NODE_ENV !== 'production'){
+            res.write(e);
+        }
+        res.end();
     }
-    sql.CreateCommentOnPost(targetpost, comment, authorname, author_avatar, identifier);
-    res.status(201).send({comments: sql.GetCommentsOnPost(targetpost, scrub_ids) }).end();
+
+})
+
+router.get("/gallery/portalinfo", FluxerUserCheck, createRateLimiter({max: 50}), (req, res) => {
+    if((req as FluxerRequest).fluxer_user == undefined){
+        res.status(401).end();
+    }
+    res.status(200).send({ destinations: GetAvailableDestinations() }).end();
 })

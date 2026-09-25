@@ -2,8 +2,8 @@ import * as pug from "pug";
 import * as express from "express";
 import {Router} from "express";
 import {Request} from "express";
-import * as sql from "./sql";
-import {FluxerRequest, FluxerUserCheck, IsUserAllowedToPost} from "./fluxer";
+import * as sql from "./sql.js";
+import {FluxerRequest, FluxerUserCheck, IsUserAllowedToPost} from "./fluxer.js";
 
 export const router: Router = express.Router();
 

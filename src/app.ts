@@ -1,9 +1,9 @@
-import express = require('express');
-import * as frontend from "./frontend"
-import * as api from "./api";
+import express from "express";
+import * as frontend from "./frontend.js"
+import * as api from "./api.js";
 import cookieparser from "cookie-parser";
 import * as fs from "fs";
-import {loadPosters} from "./posthandler";
+import {loadPosters} from "./posthandler.js";
 
 const app = express();
 

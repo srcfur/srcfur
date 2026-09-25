@@ -88,13 +88,24 @@ function getPosterByName(posterName: string): PostHandler | undefined {
 export const loadPosters = () => {
     fs.readdir("lib/posters", (err, files) => {
         if(err) throw err;
-        files.forEach(file => {
+        files.forEach(async file => {
+            if(file.endsWith(".map")){
+                return;
+            }
             file = file.split('.')[0];
-            let poster: PostHandler = require(`./posters/${file}`);
+            let poster: PostHandler = await import(`./posters/${file}`);
             console.log(`Loaded Poster: ${poster.GetDestinationName()}`);
             allPosters.push(poster);
         })
     })
+}
+
+export const GetAvailableDestinations = (): string[] => {
+    let array: string[] = [];
+    for(let i = 0; i < allPosters.length; i++) {
+        array.push(allPosters[i].GetDestinationName());
+    }
+    return array;
 }
 
 export const UploadPost = (post: Post): Promise<PostStatus> => new QueuedPost(post).Next();

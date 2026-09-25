@@ -1,6 +1,6 @@
-import {Post, PostStatus} from "../posthandler";
-import {GalleryPostData} from "../sql";
-import * as sql from "../sql";
+import {Post, PostStatus} from "../posthandler.js";
+import {GalleryPostData} from "../sql.js";
+import * as sql from "../sql.js";
 import sharp from "sharp";
 
 export const GetDestinationName = () => "Gallery";

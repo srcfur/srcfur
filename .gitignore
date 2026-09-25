@@ -6,3 +6,6 @@ public/javascripts/templates.js
 server.db
 public/images/gallery/*
 public/images/thumbnails/*
+lexicons
+lexicons.json
+package-lock.json
