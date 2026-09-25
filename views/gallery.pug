@@ -1,6 +1,8 @@
 extends layout
 
 block content
+    if isAuthed
+        a(href="/upload") Upload here buddy :3!
     #gallerySplit
         #galleryBlock
     script(type="module" src="/javascripts/gallery.js")

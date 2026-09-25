@@ -3,6 +3,7 @@ import * as express from "express";
 import {Router} from "express";
 import {Request} from "express";
 import * as sql from "./sql";
+import {FluxerRequest, FluxerUserCheck, IsUserAllowedToPost} from "./fluxer";
 
 export const router: Router = express.Router();
 
@@ -24,11 +25,20 @@ router.get("/", (req, res) => {
     res.send(pug.renderFile("views/index.pug", { title: "Homepage", loginlink: loginLink() }));
 })
 
-router.get("/upload", (req, res) => {
+router.get("/upload", FluxerUserCheck, (req, res) => {
+    let check: FluxerRequest = req as FluxerRequest;
+    if(check.fluxer_user === undefined){
+        res.redirect("/gallery");
+        return;
+    }
     res.send(pug.renderFile("views/upload_portal.pug", { title: "Upload Portal", loginlink: loginLink() }));
 })
 
-router.get("/gallery", (req: Request<{}, {}, {}, GalleryQuery>, res) => {
-    let page:number = req.query.page || 0;
-    res.send(pug.renderFile("views/gallery.pug", { title: "Gallery", loginlink: loginLink() }));
+router.get("/gallery", FluxerUserCheck, (req: Request<{}, {}, {}, GalleryQuery>, res) => {
+    let check: FluxerRequest = req as FluxerRequest;
+    let auth:boolean = false;
+    if(check.fluxer_user !== undefined){
+        auth = IsUserAllowedToPost(check.fluxer_user);
+    }
+    res.send(pug.renderFile("views/gallery.pug", { title: "Gallery", loginlink: loginLink(), isAuthed: auth }));
 })

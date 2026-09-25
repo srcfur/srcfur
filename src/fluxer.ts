@@ -1,4 +1,5 @@
 import axios, {AxiosInstance} from "axios";
+import {NextFunction, Request, Response} from "express";
 
 const apiClient:AxiosInstance = axios.create({
     baseURL: "https://api.fluxer.app/v1",
@@ -49,4 +50,17 @@ export const GetUser = async (bearer: string): Promise<FluxerUserInfo | undefine
 
 export const IsUserAllowedToPost = function (user: FluxerUserInfo){
     return user.id == "1538680127993413632";
+}
+
+export interface FluxerRequest extends Request {
+    fluxer_user: FluxerUserInfo | undefined;
+}
+
+export const FluxerUserCheck = async function (req: FluxerRequest, res: Response, next: NextFunction) {
+    req.fluxer_user = undefined;
+    if(req.cookies.fluxer_token !== undefined){
+        let token: string = req.cookies.fluxer_token as string;
+        req.fluxer_user = await GetUser(token);
+    }
+    next();
 }
