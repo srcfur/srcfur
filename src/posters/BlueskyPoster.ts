@@ -34,21 +34,10 @@ export const HandlePost= async (post: Post): Promise<PostStatus> => {
     try{
         const client: Client = await Authenticate();
         let bskypost: BlueskyPost = new BlueskyPost(post);
-        for(let i = 0; i < post.Files.length; i++) {
-            const file = post.Files[i];
-            let enctype: `${string}/${string}` = "image/none";
-            if(file.endsWith(".jpg") || file.endsWith(".jpeg")){
-                enctype = "image/jpeg"
-            }
-            if(file.endsWith(".png")){
-                enctype = "image/png"
-            }
-            if(enctype == "image/none"){
-                console.warn(`Couldn't find type of ${file}`);
-                continue;
-            }
-            const bytes = fs.readFileSync(file);
-            const uploadRes = await client.call(com.atproto.repo.uploadBlob, bytes, {encoding: enctype})
+        for(let i = 0; i < post.Versions.length; i++) {
+            const version = post.Versions[i];
+            const bytes = fs.readFileSync(version.File);
+            const uploadRes = await client.call(com.atproto.repo.uploadBlob, bytes, { encoding: version.GetEncodingType() })
             bskypost.embed.images.push({ image: uploadRes.blob, alt: "" })
         }
         // @ts-ignore

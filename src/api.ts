@@ -6,7 +6,7 @@ import * as sql from "./sql.js";
 import {FluxerRequest, FluxerUserCheck, FluxerUserInfo, GetUser} from "./fluxer.js";
 import multer from "multer";
 import {createRateLimiter} from "./ratelimiter.js";
-import {GetAvailableDestinations, Post, PostBuilder, UploadPost} from "./posthandler.js";
+import {GetAvailableDestinations, ImageVersion, Post, PostBuilder, UploadPost} from "./posthandler.js";
 
 const PAGE_SIZE: number = 30;
 
@@ -84,7 +84,7 @@ router.post("/gallery/upload", backend_ratelimiter, multer({ storage: gallerySto
         for(let i:number = 0; i < fileArray.length; i++){
             console.log(fileArray[i]);
             let path: string = fileArray[i].path;
-            builder.AddFile(path);
+            builder.AddVersion(new ImageVersion(path));
         }
         dests.forEach((dest) => {
             builder.AddDestination(dest);

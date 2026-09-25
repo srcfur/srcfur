@@ -1,14 +1,27 @@
 import fs from "fs";
 
+export class ImageVersion {
+    File: string;
+    constructor(file: string) {
+        this.File = file;
+    }
+    GetEncodingType(): `${string}/${string}` {
+        let encoding: `${string}/${string}` = "image/png";
+        if(this.File.endsWith("jpg") || this.File.endsWith("jpeg"))
+            encoding = "image/jpeg";
+        return encoding;
+    }
+}
+
 export class Post {
     PostName: string;
     PostDescription: string;
-    Files: string[];
+    Versions: ImageVersion[];
     Destinations: string[];
     constructor() {
         this.PostName = "Unnamed Post";
         this.PostDescription = "No description...";
-        this.Files = [];
+        this.Versions = [];
         this.Destinations = [];
     }
 }
@@ -21,8 +34,8 @@ export class PostBuilder extends Post{
         this.PostDescription = desc;
         return this;
     }
-    AddFile(file:string): PostBuilder {
-        this.Files.push(file);
+    AddVersion(version:ImageVersion): PostBuilder {
+        this.Versions.push(version);
         return this;
     }
     AddDestination(dest: string): PostBuilder {
