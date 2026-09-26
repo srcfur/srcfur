@@ -80,7 +80,7 @@ export function GetGalleryPage(page:number, pagesize:number, tags?: string[]): G
             query += ` INTERSECT SELECT id, post_name, post_description, post_date_iso FROM gallery_tags INNER JOIN main.gallery_posts gp on gp.id = gallery_tags.postid WHERE tag=?`
         }
     }
-    query += ') LIMIT ? OFFSET ?'
+    query += ') ORDER BY id DESC LIMIT ? OFFSET ?'
     commands.push(pagesize, page * pagesize);
     return database.prepare(query).all(commands) as GalleryPostData[];
 }
