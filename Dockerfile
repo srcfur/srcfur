@@ -13,6 +13,7 @@ RUN npm run build
 FROM node:22-alpine AS dependency
 RUN apk add --no-cache python3 make g++
 WORKDIR /app
+COPY tsconfig.json ./
 COPY package*.json ./
 RUN npm ci --omit=dev
 
@@ -23,7 +24,7 @@ WORKDIR /app
 RUN addgroup -g 1001 furgroup && \
     adduser -u 1001 -G furgroup -s /bin/sh -D srcfurwebsite
 COPY package*.json ./
-COPY --from=dependency /app/node_models ./node_modules
+COPY --from=dependency /app/node_modules ./node_modules
 COPY --from=builder --chown=srcfurwebsite:furgroup /app/lib ./lib
 COPY --from=builder --chown=srcfurwebsite:furgroup /app/public ./public
 COPY --from=builder --chown=srcfurwebsite:furgroup /app/routes ./routes
