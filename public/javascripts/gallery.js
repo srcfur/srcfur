@@ -1,7 +1,13 @@
 import templates from './templates.js';
 function appendPage(page){
     let gallery = document.querySelector("#galleryBlock");
-    fetch("/api/gallery/page/" + page).then(async (response)=>{
+    const params = new URLSearchParams(window.location.search);
+    const value = params.get('tags');
+    let query = "";
+    if(value != null){
+        query = "?tags=" + value;
+    }
+    fetch("/api/gallery/page/" + page + query).then(async (response)=>{
         if(!response.ok) {
             account_cache = response.status;
             return;

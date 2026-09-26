@@ -6,22 +6,21 @@
     display:block;
     width: 100%;
 }
-#UploadForm textarea {
-    width:100%;
-    height:12rem;
-}
 
 #UploadForm #fileArea {
     display: flex;
-    height: 12rem;
+    height: fit-content;
     background-color: gray;
-    flex-direction: row;
+    flex-direction: column;
 }
 #UploadForm #fileArea .fileFrame {
     height: 100%;
     display:flex;
-    flex-direction: column;
-    justify-content: space-between;
+    flex-direction: row;
+
+}
+.fileFrame div {
+    flex-grow: 1;
 }
 #UploadForm #fileArea .fileFrame img {
     height: 10rem;
@@ -29,4 +28,38 @@
 }
 #UploadForm #fileArea .fileFrame input {
     height: 2rem;
+}
+
+#UploadForm .labeled {
+    margin-bottom: 0px;
+}
+
+#UploadForm input[type=text] {
+    height: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    background-color: darkslategray;
+    color:inherit;
+}
+
+#UploadForm textarea {
+    font-weight: bold;
+    background-color: darkslategray;
+    color:inherit;
+    border-style: inset;
+    border-color: lightgray;
+    border-width: 2px;
+    padding: 1px 0px;
+    width: calc(100% - 4px);
+    resize: none;
+}
+
+#UploadForm textarea[name="description"] {
+    height: 6rem;
+    resize: none;
+}
+
+.furaffinityFileField {
+    display: flex;
+    flex-direction: column;
 }

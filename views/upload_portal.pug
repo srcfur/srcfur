@@ -4,38 +4,15 @@ block content
     script(type="module" src="/javascripts/upload_backend.js")
     link(rel='stylesheet', href='/stylesheets/back_portal.css')
     form(id="UploadForm" action="/api/gallery/upload" method="post" enctype="multipart/form-data")
+        h1(class="labeled") Post Title
         input(type="text" name="title")
+        h1(class="labeled") Post Description
         textarea(name="description")
-        input(type="number" name="imagecount" value="0" min="0" max="9")
+        h1(class="labeled") Tags
+        textarea(name="tags")
+        h1(class="labeled") Versions
+        input(type="number" name="imagecount" value="1" min="1" max="9" style="width: 25%;min-width:2rem;font-size:1rem;")
         #fileArea
+        h1(class="labeled") Destinations
         #destinationArea
         input(type="submit" id="SubmitForm")
-        script.
-            function bindNumberAlloc(){
-                let uploadform = document.getElementById("UploadForm");
-                uploadform.children[2].addEventListener("change", (ev)=>{
-                    while(uploadform.children[3].children.length > ev.target.value){
-                        uploadform.children[3].children[uploadform.children[3].children.length - 1].remove()
-                    }
-                    while(uploadform.children[3].children.length < ev.target.value){
-                        let frame = document.createElement("div");
-                        frame.className="fileFrame"
-                        let img = document.createElement("img");
-                        frame.appendChild(img)
-                        let newFormFile = document.createElement("input");
-                        newFormFile.type="file";
-                        newFormFile.name="image";
-                        newFormFile.addEventListener("change", ()=>{
-                            img.src = URL.createObjectURL(newFormFile.files[0]);
-                            img.onload = ()=>URL.revokeObjectURL(img.src);
-                        })
-                        frame.appendChild(newFormFile)
-                        uploadform.children[3].appendChild(frame);
-                    }
-                })
-            }
-            if(document.readyState == "loading"){
-                document.addEventListener("DOMContentLoaded", bindNumberAlloc);
-            }else{
-                bindNumberAlloc();
-            }

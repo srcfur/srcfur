@@ -16,6 +16,10 @@ interface AuthorizationQuery {
     code?: string;
 }
 
+interface GalleryQuery {
+    tags?: string;
+}
+
 const fluxer_ratelimit = createRateLimiter({api: "fluxer", max: 10})
 const backend_ratelimiter = createRateLimiter({ api: "backend", max: 100 })
 
@@ -58,10 +62,13 @@ router.post("/gallery/upload", backend_ratelimiter, multer({ storage: gallerySto
         res.status(401).end();
         return;
     }
-    if(req.files == undefined || req.files.length == 0 || req.body.title == undefined || req.body.description == undefined || req.body.destinations == undefined) {
-        res.status(400).end();
+    if(req.files == undefined || req.files.length == 0 || req.body.title == undefined || req.body.description == undefined ||
+        req.body.destinations == undefined || req.body.versions == undefined || req.body.tags == undefined) {
+        res.status(400).send("Missing arguments!").end();
         return;
     }
+    if(!Array.isArray(req.body.versions)){ res.status(400).send("Versions is not an array!").end(); return; }
+    if(req.files.length != req.body.versions.length) { res.status(400).send("File count not equal to version count?").end(); return;}
     GetUser(req.cookies["fluxer_token"]).then((profile)=>{
         if(profile == undefined){
             res.status(401).end();
@@ -80,20 +87,26 @@ router.post("/gallery/upload", backend_ratelimiter, multer({ storage: gallerySto
         let builder: PostBuilder = new PostBuilder();
         builder.SetTitle(req.body.title);
         builder.SetDescription(req.body.description);
+        (req.body.tags as string[]).forEach(tag=> builder.AddTag(tag));
         let fileArray: Express.Multer.File[] = req.files as any as Express.Multer.File[];
         for(let i:number = 0; i < fileArray.length; i++){
-            console.log(fileArray[i]);
             let path: string = fileArray[i].path;
-            builder.AddVersion(new ImageVersion(path));
+            let version: ImageVersion = new ImageVersion(path);
+            let versionInfo = undefined;
+            try {
+                versionInfo = JSON.parse(req.body.versions[i] as string);
+            }catch(err){
+                res.status(400).send("Bad format json!").end();
+                return;
+            }
+            (versionInfo.tags as string[]).forEach((tag:string) => version.Tags.add(tag));
+            builder.AddVersion(version);
         }
         dests.forEach((dest) => {
             builder.AddDestination(dest);
         })
         UploadPost(builder.Pack()).then((result)=>{
-            let didAllComplete:boolean = true;
-            result.forEach((status)=>{
-                didAllComplete = status.success && didAllComplete;
-            })
+            let didAllComplete:boolean = !result.values().some((value)=> !value.success);
             if(didAllComplete){
                 res.status(200).end();
             }else{
@@ -107,7 +120,7 @@ router.post("/gallery/upload", backend_ratelimiter, multer({ storage: gallerySto
     })
 })
 
-router.get("/gallery/page/:id", createRateLimiter({max: 50}), (req, res) => {
+router.get("/gallery/page/:id", createRateLimiter({max: 50}), (req: Request<{id:string}, {}, {}, {}>, res) => {
     if(Number.isNaN(req.params.id)){
         res.status(400).end();
         return;
@@ -115,7 +128,12 @@ router.get("/gallery/page/:id", createRateLimiter({max: 50}), (req, res) => {
     let page:number = parseInt(<string>req.params.id);
     let postCount:number = sql.GetGalleryPostCount();
     let nextPagePresent: boolean = postCount - (page * PAGE_SIZE + PAGE_SIZE) > 0;
-    res.status(200).send({ posts: sql.GetGalleryPage(page, PAGE_SIZE), hasNextPage: nextPagePresent }).end();
+    let query:GalleryQuery = req.query as GalleryQuery;
+    let tags: string[] = [];
+    if(query.tags != undefined){
+        query.tags.split(' ').forEach((tag:string) => tags.push(tag));
+    }
+    res.status(200).send({ posts: sql.GetGalleryPage(page, PAGE_SIZE, tags), hasNextPage: nextPagePresent }).end();
 })
 
 router.get("/gallery/post/:id", createRateLimiter({max: 50}), (req, res) => {

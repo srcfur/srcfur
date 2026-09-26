@@ -3,8 +3,10 @@ import Dict = NodeJS.Dict;
 
 export class ImageVersion {
     File: string;
+    Tags: Set<string>;
     constructor(file: string) {
         this.File = file;
+        this.Tags = new Set();
     }
     GetEncodingType(): `${string}/${string}` {
         let encoding: `${string}/${string}` = "image/png";
@@ -19,11 +21,13 @@ export class Post {
     PostDescription: string;
     Versions: ImageVersion[];
     Destinations: string[];
+    Tags: Set<string>;
     constructor() {
         this.PostName = "Unnamed Post";
         this.PostDescription = "No description...";
         this.Versions = [];
         this.Destinations = [];
+        this.Tags = new Set<string>();
     }
 }
 export class PostBuilder extends Post{
@@ -41,6 +45,10 @@ export class PostBuilder extends Post{
     }
     AddDestination(dest: string): PostBuilder {
         this.Destinations.push(dest);
+        return this;
+    }
+    AddTag(tag: string): PostBuilder {
+        this.Tags.add(tag);
         return this;
     }
     Pack(): Post {

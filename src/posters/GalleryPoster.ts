@@ -5,10 +5,14 @@ import sharp from "sharp";
 
 export const GetDestinationName = () => "Gallery";
 export const HandlePost= async (post: Post): Promise<PostStatus> => {
+
     let gallerypost: GalleryPostData = sql.CreateGalleryPost(post.PostName, post.PostDescription);
     for(let i:number = 0; i < post.Versions.length; i++){
         sql.AppendImageToGalleryPostData(gallerypost, post.Versions[i].File.substring("public".length));
+        post.Versions[i].Tags.forEach(tag=> post.Tags.add(tag));
     }
+    post.Tags.delete("");
+    post.Tags.forEach(tag=>sql.AddTagToGalleryPost(gallerypost.id, tag))
     await sharp(post.Versions[0].File)
         .resize(256, 256)
         .toFile('public/images/thumbnails/' + gallerypost.id.toString() + ".jpg");

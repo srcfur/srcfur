@@ -9,6 +9,7 @@ export const router: Router = express.Router();
 
 interface GalleryQuery {
     page?: number;
+    tags?: string[];
 }
 
 //https://web.canary.fluxer.app/oauth2/authorize?client_id=1552111823480696833&scope=identify+email&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauthorize&response_type=code

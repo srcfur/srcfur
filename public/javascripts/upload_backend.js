@@ -1,3 +1,4 @@
+import templates from './templates.js';
 function upload_handler(){
     const form = document.querySelector("#UploadForm")
     const submitbutton = form.querySelector("#SubmitForm");
@@ -29,8 +30,15 @@ function upload_handler(){
         let data = new FormData();
         data.set("title", form.querySelector("input[name='title']").value);
         data.set("description", form.querySelector("textarea[name='description']").value);
-        form.querySelectorAll("input[type=file][name='image']").forEach(file => {
-            data.append("image", file.files[0]);
+        data.append("tags[]", "srcfur");
+        (form.querySelector("textarea[name='tags']").value).split(' ').forEach((tag) => {
+            data.append("tags[]", tag)
+        })
+        form.querySelectorAll(".fileFrame").forEach(fileFrame => {
+            let extra = {};
+            extra.tags = form.querySelector("textarea[name='additional-tags']").value.split(' ');
+            data.append("image", fileFrame.querySelector("input[name='image']").files[0]);
+            data.append("versions[]", JSON.stringify(extra));
         })
         form.querySelectorAll("input[type=checkbox][name='destination']").forEach(destinationNode => {
             if(destinationNode.checked){
@@ -49,8 +57,35 @@ function upload_handler(){
     })
 }
 
+function setFileCount(count){
+    let fileNumberInput = document.querySelector("input[name='imagecount']");
+    let fileSection = document.querySelector('#fileArea')
+    while(fileSection.children.length > count){
+        fileSection.children[fileSection.children.length - 1].remove()
+    }
+    while(fileSection.children.length < count){
+        let template = document.createElement("template");
+        template.innerHTML = templates.uploadportalfilefield({})
+        const fileFrame = template.content.firstElementChild;
+        const filePreview = fileFrame.querySelector("img[id='filePreview']");
+        fileFrame.querySelector("input[name='image']").addEventListener("change", (ev)=>{
+            filePreview.src = URL.createObjectURL(ev.target.files[0]);
+            filePreview.onload = ()=>URL.revokeObjectURL(filePreview.src);
+        })
+        fileSection.appendChild(fileFrame);
+    }
+}
+
+function bindNumberAlloc(){
+    let fileNumberInput = document.querySelector("input[name='imagecount']");
+    document.querySelector("input[name='imagecount']").addEventListener("change", (ev)=>setFileCount(ev.target.value));
+    setFileCount(fileNumberInput.value);
+}
+
 if(document.readyState == "loading"){
     document.addEventListener("DOMContentLoaded", upload_handler)
+    document.addEventListener("DOMContentLoaded", bindNumberAlloc)
 }else{
     upload_handler();
+    bindNumberAlloc();
 }
