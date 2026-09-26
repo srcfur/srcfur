@@ -23,6 +23,9 @@ interface RawPostForm {
     destinations: string[];
     versions: string[];
     tags: string[];
+    rating: number;
+    fa_category: number;
+    fa_theme: number;
 }
 
 export class Post {
@@ -31,12 +34,20 @@ export class Post {
     Versions: ImageVersion[];
     Destinations: string[];
     Tags: Set<string>;
+
+    Rating: number;
+    fa_category: number;
+    fa_theme: number;
+
     constructor() {
         this.PostName = "Unnamed Post";
         this.PostDescription = "No description...";
         this.Versions = [];
         this.Destinations = [];
         this.Tags = new Set<string>();
+        this.Rating = 0;
+        this.fa_category = 0;
+        this.fa_theme = 0;
     }
 }
 
@@ -77,6 +88,9 @@ export class PostBuilder extends Post{
             (versionInfo.tags ?? Array.of()).forEach((tag:string) => alternate.Tags.add(tag));
             this.AddVersion(alternate);
         });
+        this.Rating = form.rating;
+        this.fa_category = form.fa_category;
+        this.fa_theme = form.fa_theme;
         return this;
     }
 }

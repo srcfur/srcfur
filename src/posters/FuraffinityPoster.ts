@@ -30,7 +30,6 @@ async function UploadVersion(apiClient: AxiosInstance, post: Post, version: Imag
         },
         httpVersion: 2,
         withCredentials: true,
-        beforeRedirect: (options, responseDetails, requestDetails)=>{ console.log(responseDetails); console.log(requestDetails); },
         validateStatus: (status) => status == 200 || status == 301 || status == 302
     });
     if(upload_response.status !== 302){
@@ -42,19 +41,39 @@ async function UploadVersion(apiClient: AxiosInstance, post: Post, version: Imag
     const finalize_cheerio = cheerio.load(finalize_page.data);
     key = finalize_cheerio("form[id='myform']").find("input[name='key']").val() as string;
 
+    const ratingTranslate = [0,2,1]
+
     const finalizeForm: FormData = new FormData();
     finalizeForm.set('key', key);
-    finalizeForm.set('cat', '31') //Set Category to Other during testing
-    finalizeForm.set('atype', '122') //Set Theme to ABDL
+    finalizeForm.set('cat', post.fa_category.toString()) //Set Category to Other during testing
+    finalizeForm.set('atype', post.fa_theme.toString()) //Set Theme to ABDL
     finalizeForm.set('species', '1') //Set Species to Unspecified / Any
-    finalizeForm.set("rating", '1') //Set Rating to Adult (Mature = 2)
+    finalizeForm.set("rating", ratingTranslate[post.Rating].toString()) //Set Rating to Adult (Mature = 2)
 
     finalizeForm.set('title', post.PostName)
     finalizeForm.set('message', post.PostDescription)
 
-    finalizeForm.set('keywords', "")
+    let keywords: string = "";
+    post.Tags.forEach(tag => { keywords += tag + " "})
+    version.Tags.forEach(tag => { keywords += tag + " "})
+    finalizeForm.set('keywords', keywords)
 
-    return new PostStatus(`Furaffinity worked. But we're testing!`, false);
+    const final_response = await apiClient.request({
+        url: "/submit/finalize",
+        method: "POST",
+        data: finalizeForm,
+        headers: {
+            Referer: 'https://www.furaffinity.net/submit/',
+        },
+        httpVersion: 2,
+        withCredentials: true,
+        validateStatus: (status) => status == 200 || status == 301 || status == 302
+    });
+    if(final_response.status !== 302){
+        console.log(upload_response);
+        return new PostStatus(`Furaffinity returned code ${upload_response.status} in response to upload!`, false);
+    }
+    return new PostStatus("", true)
 }
 
 export const HandlePost= async (post: Post): Promise<PostStatus> => {

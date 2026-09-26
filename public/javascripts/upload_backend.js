@@ -45,6 +45,9 @@ function upload_handler(){
                 data.append("destinations[]", destinationNode.target)
             }
         })
+        data.set("rating", form.querySelector("select[name='rating']").value)
+        data.set("fa_category", form.querySelector("select[name='fa_cat']").value)
+        data.set("fa_theme", form.querySelector("select[name='fa_theme']").value)
         fetch("/api/gallery/upload", { method: "POST", body: data }).then(async response => {
             if(!response.ok){
                 window.alert(response.status + ": " + await response.text());

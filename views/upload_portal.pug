@@ -9,9 +9,9 @@ block content
         h1(class="labeled") Post Description
         textarea(name="description")
         select(name="rating")
-            option(value=1) Safe
-            option(value=2) Questionable
-            option(value=3) Explicit
+            option(value=0) Safe
+            option(value=1) Questionable
+            option(value=2) Explicit
         h1(class="labeled") Tags
         textarea(name="tags")
         h1(class="labeled") Versions
@@ -19,14 +19,14 @@ block content
         #fileArea
         h1(class="labeled") Furaffinity
         .subBox
-            select(name="cat")
+            select(name="fa_cat")
                 optgroup(label="Specialty")
                     option(value=1) All
                     option(value=2) Digital Art
                     option(value=37) 2D animation
                     option(value=38) 3D animation
                     option(value=39) Pixel Animation
-            select(name="theme")
+            select(name="fa_theme")
                 optgroup(label="Specialty")
                     option(value=100) General Furry Art
                     option(value=122) ABDL
