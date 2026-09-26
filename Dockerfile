@@ -25,7 +25,7 @@ RUN addgroup -g 1001 furgroup && \
     adduser -u 1001 -G furgroup -s /bin/sh -D srcfurwebsite
 COPY package*.json ./
 COPY --from=dependency /app/node_modules ./node_modules
-COPY --from=builder --chown=srcfurwebsite:furgroup /app/lib ./lib
+COPY --from=builder --chown=srcfurwebsite:furgroup /app/lib/ ./lib/
 COPY --from=builder --chown=srcfurwebsite:furgroup /app/public ./public
 COPY --from=builder --chown=srcfurwebsite:furgroup /app/routes ./routes
 COPY --from=builder --chown=srcfurwebsite:furgroup /app/views ./views
