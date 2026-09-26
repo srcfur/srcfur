@@ -10,15 +10,20 @@ COPY . .
 RUN npm run downloadlexicons
 RUN npm run build
 
+FROM node:22-alpine AS dependency
+RUN apk add --no-cache python3 make g++
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+
 # Stage 2: Production
 FROM node:22-alpine AS runner
-RUN apk add --no-cache python3 make g++
 WORKDIR /app
 # Create a non-root user for security
 RUN addgroup -g 1001 furgroup && \
     adduser -u 1001 -G furgroup -s /bin/sh -D srcfurwebsite
 COPY package*.json ./
-RUN npm ci --omit=dev
+COPY --from=dependency /app/node_models ./node_modules
 COPY --from=builder --chown=srcfurwebsite:furgroup /app/lib ./lib
 COPY --from=builder --chown=srcfurwebsite:furgroup /app/public ./public
 COPY --from=builder --chown=srcfurwebsite:furgroup /app/routes ./routes
