@@ -78,6 +78,7 @@ export const HandlePost= async (post: Post): Promise<PostStatus> => {
                 await setTimeout(20000);
             }
         }
+        return new PostStatus("Success!", true);
     }catch(err){
         return new PostStatus(err as string, false);
     }
