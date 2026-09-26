@@ -9,7 +9,7 @@ import * as app from "../lexicons/app.js";
 async function Authenticate(): Promise<Client> {
     const account: PasswordSession = await PasswordSession.login({
         service: "https://bsky.social",
-        identifier: "dreadroblox.bsky.social",
+        identifier: "srcfur.bsky.social",
         password: process.env.BSKY_PASSWORD as string,
     });
     return new Client(account);
