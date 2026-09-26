@@ -12,8 +12,8 @@ app.use(express.static("public"));
 app.use(frontend.router);
 app.use("/api", api.router);
 
-app.listen(process.env.PORT == undefined ? 3000 : process.env.PORT, ()=>{
-    console.log("Server started on port: " + (process.env.PORT == undefined ? 3000 : process.env.PORT));
+app.listen(process.env.PORT ?? 3000, ()=>{
+    console.log("Server started on port: " + (process.env.PORT ?? 3000));
 });
 
 fs.readdir("views/templates", (err, files) => {
