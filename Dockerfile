@@ -25,13 +25,7 @@ RUN addgroup -g 1001 furgroup && \
     adduser -u 1001 -G furgroup -s /bin/sh -D srcfurwebsite
 COPY package*.json ./
 COPY --from=dependency /app/node_modules ./node_modules
-COPY --from=builder --chown=srcfurwebsite:furgroup /app/lib/ ./lib/
-COPY --from=builder --chown=srcfurwebsite:furgroup /app/public ./public
-COPY --from=builder --chown=srcfurwebsite:furgroup /app/routes ./routes
-COPY --from=builder --chown=srcfurwebsite:furgroup /app/views ./views
-COPY --from=builder --chown=srcfurwebsite:furgroup /app/sqlsetup ./sqlsetup
-COPY --from=builder --chown=srcfurwebsite:furgroup /app/lexicons ./lexicons
-COPY --from=builder --chown=srcfurwebsite:furgroup /app/lexicons.json ./lexicons.json
+COPY --from=builder --chown=srcfurwebsite:furgroup /app/ .
 # Set environment variables
 ENV NODE_ENV=production
 # Expose the application port
