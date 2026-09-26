@@ -158,7 +158,6 @@ export const loadPosters = () => {
             if(file.endsWith(".map")){
                 return;
             }
-            file = file.split('.')[0];
             let poster: PostHandler = await import(`./posters/${file}`);
             console.log(`Loaded Poster: ${poster.GetDestinationName()}`);
             allPosters.push(poster);
