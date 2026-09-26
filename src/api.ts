@@ -62,62 +62,37 @@ router.post("/gallery/upload", backend_ratelimiter, multer({ storage: gallerySto
         res.status(401).end();
         return;
     }
-    if(req.files == undefined || req.files.length == 0 || req.body.title == undefined || req.body.description == undefined ||
-        req.body.destinations == undefined || req.body.versions == undefined || req.body.tags == undefined) {
-        res.status(400).send("Missing arguments!").end();
-        return;
-    }
-    if(!Array.isArray(req.body.versions)){ res.status(400).send("Versions is not an array!").end(); return; }
-    if(req.files.length != req.body.versions.length) { res.status(400).send("File count not equal to version count?").end(); return;}
-    GetUser(req.cookies["fluxer_token"]).then((profile)=>{
-        if(profile == undefined){
-            res.status(401).end();
-            return;
-        }
-        if(!fluxer.IsUserAllowedToPost(profile as FluxerUserInfo)){
-            res.status(401).end();
-            return;
-        }
-        let dests: string[] = [];
-        if(Array.isArray(req.body.destinations)){
-            dests = req.body.destinations;
-        }else{
-            dests.push(req.body.destinations);
-        }
-        let builder: PostBuilder = new PostBuilder();
-        builder.SetTitle(req.body.title);
-        builder.SetDescription(req.body.description);
-        (req.body.tags as string[]).forEach(tag=> builder.AddTag(tag));
-        let fileArray: Express.Multer.File[] = req.files as any as Express.Multer.File[];
-        for(let i:number = 0; i < fileArray.length; i++){
-            let path: string = fileArray[i].path;
-            let version: ImageVersion = new ImageVersion(path);
-            let versionInfo = undefined;
-            try {
-                versionInfo = JSON.parse(req.body.versions[i] as string);
-            }catch(err){
-                res.status(400).send("Bad format json!").end();
+    let builder: PostBuilder = new PostBuilder();
+    try{
+        builder.ReadFromRequest(req.body);
+        GetUser(req.cookies["fluxer_token"]).then((profile)=>{
+            if(profile == undefined || !fluxer.IsUserAllowedToPost(profile as FluxerUserInfo)){
+                res.status(401).end();
                 return;
             }
-            (versionInfo.tags as string[]).forEach((tag:string) => version.Tags.add(tag));
-            builder.AddVersion(version);
-        }
-        dests.forEach((dest) => {
-            builder.AddDestination(dest);
-        })
-        UploadPost(builder.Pack()).then((result)=>{
-            let didAllComplete:boolean = !result.values().some((value)=> !value.success);
-            if(didAllComplete){
-                res.status(200).end();
-            }else{
-                let toFix: { Destination: string, status: PostStatus }[] = [];
-                result.forEach((status, key)=>{
-                    toFix.push( { Destination: key, status: status } )
-                })
-                res.status(500).send(toFix).end(); //409 causes auto reupload, 500 but means 409
+            let fileArray: Express.Multer.File[] = req.files as any as Express.Multer.File[];
+            for(let i:number = 0; i < fileArray.length; i++){
+                let path: string = fileArray[i].path;
+                let version: ImageVersion = builder.Versions[i];
+                version.File = path;
             }
-        });
-    })
+            UploadPost(builder.Pack()).then((result)=>{
+                let didAllComplete:boolean = !result.values().some((value)=> !value.success);
+                if(didAllComplete){
+                    res.status(200).end();
+                }else{
+                    let toFix: { Destination: string, status: PostStatus }[] = [];
+                    result.forEach((status, key)=>{
+                        toFix.push( { Destination: key, status: status } )
+                    })
+                    res.status(500).send(toFix).end(); //409 causes auto reupload, 500 but means 409
+                }
+            });
+        })
+    }catch(e){
+        console.error(e)
+        res.status(500).end();
+    }
 })
 
 router.get("/gallery/page/:id", createRateLimiter({max: 50}), (req: Request<{id:string}, {}, {}, {}>, res) => {

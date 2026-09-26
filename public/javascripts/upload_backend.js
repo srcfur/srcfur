@@ -36,13 +36,13 @@ function upload_handler(){
         })
         form.querySelectorAll(".fileFrame").forEach(fileFrame => {
             let extra = {};
-            extra.tags = form.querySelector("textarea[name='additional-tags']").value.split(' ');
+            extra.tags = fileFrame.querySelector("textarea[name='additional-tags']").value.split(' ');
             data.append("image", fileFrame.querySelector("input[name='image']").files[0]);
             data.append("versions[]", JSON.stringify(extra));
         })
         form.querySelectorAll("input[type=checkbox][name='destination']").forEach(destinationNode => {
             if(destinationNode.checked){
-                data.append("destinations", destinationNode.target)
+                data.append("destinations[]", destinationNode.target)
             }
         })
         fetch("/api/gallery/upload", { method: "POST", body: data }).then(async response => {

@@ -1,11 +1,12 @@
 import fs from "fs";
 import Dict = NodeJS.Dict;
+import express from "express";
 
 export class ImageVersion {
     File: string;
     Tags: Set<string>;
-    constructor(file: string) {
-        this.File = file;
+    constructor() {
+        this.File = "";
         this.Tags = new Set();
     }
     GetEncodingType(): `${string}/${string}` {
@@ -14,6 +15,14 @@ export class ImageVersion {
             encoding = "image/jpeg";
         return encoding;
     }
+}
+
+interface RawPostForm {
+    title: string;
+    description: string;
+    destinations: string[];
+    versions: string[];
+    tags: string[];
 }
 
 export class Post {
@@ -30,6 +39,7 @@ export class Post {
         this.Tags = new Set<string>();
     }
 }
+
 export class PostBuilder extends Post{
     SetTitle(name: string): PostBuilder {
         this.PostName = name;
@@ -53,6 +63,21 @@ export class PostBuilder extends Post{
     }
     Pack(): Post {
         return this as Post;
+    }
+    ReadFromRequest(form: RawPostForm): Post {
+
+        this.SetTitle(form.title);
+        this.SetDescription(form.description);
+        form.tags.forEach((tag)=> this.AddTag(tag));
+        this.Tags.delete("");
+        form.destinations.forEach((dest)=> this.AddDestination(dest));
+        form.versions.forEach(version => {
+            const alternate = new ImageVersion();
+            let versionInfo: { tags: string[]; } = JSON.parse(version);
+            (versionInfo.tags ?? Array.of()).forEach((tag:string) => alternate.Tags.add(tag));
+            this.AddVersion(alternate);
+        });
+        return this;
     }
 }
 
