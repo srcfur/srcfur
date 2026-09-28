@@ -3,6 +3,7 @@ function appendPage(page){
     let gallery = document.querySelector("#galleryBlock");
     const params = new URLSearchParams(window.location.search);
     const value = params.get('tags');
+    const postQuery = params.get('post');
     let query = "";
     if(value != null){
         query = "?tags=" + value;
@@ -18,6 +19,10 @@ function appendPage(page){
             template.innerHTML = templates.gallerypost(posts.posts[i]);
             setup_post_interaction(template.content.firstElementChild, posts.posts[i]);
             gallery.appendChild(template.content.firstElementChild);
+
+            if(posts.posts[i].id == postQuery){
+                buildPostPreview(posts.posts[i]);
+            }
         }
         if(posts.hasNextPage == true){
             appendPage(page + 1);
@@ -68,6 +73,11 @@ function buildPostPreview(context){
     let expandedContext = context;
     document.querySelector("#galleryBlock").inert = true;
 
+    // Update our url!
+    const url = new URL(window.location.href);
+    url.searchParams.set('post', context.id);
+    window.history.pushState({}, '', url);
+
     fetch("/api/gallery/post/" + context.id).then(async (response)=>{
         if(!response.ok) {
             document.querySelector("#galleryBlock").inert = false;
@@ -86,6 +96,8 @@ function buildPostPreview(context){
                 post_preview_window.classList.add("removing");
                 document.querySelector("#galleryBlock").inert = false;
                 document.removeEventListener('click', clickOff);
+                url.searchParams.delete('post');
+                window.history.pushState({}, '', url);
                 setTimeout(()=>{
                     post_preview_window.remove();
                 }, 300);
