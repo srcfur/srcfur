@@ -4,6 +4,8 @@ import * as api from "./api.js";
 import cookieparser from "cookie-parser";
 import * as fs from "fs";
 import {loadPosters} from "./posthandler.js";
+import {UpdateBlueskyInformation, UpdateFuraffinityTokens} from "./config.js";
+import {SetupDatabase} from "./sql.js";
 
 const app = express();
 
@@ -11,6 +13,11 @@ app.use(cookieparser());
 app.use(express.static("public"));
 app.use(frontend.router);
 app.use("/api", api.router);
+
+SetupDatabase();
+loadPosters();
+UpdateFuraffinityTokens(process.env.FA_COOKIE_A as string, process.env.FA_COOKIE_B as string);
+UpdateBlueskyInformation("srcfur.bsky.social", process.env.BSKY_PASSWORD as string);
 
 app.listen(process.env.PORT ?? 3000, ()=>{
     console.log("Server started on port: " + (process.env.PORT ?? 3000));
@@ -32,4 +39,3 @@ fs.readdir("views/templates", (err, files) => {
 fs.mkdir("public/images/gallery", (err) => {});
 fs.mkdir("public/images/thumbnails", (err) => {});
 
-loadPosters();

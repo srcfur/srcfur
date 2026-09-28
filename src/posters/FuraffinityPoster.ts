@@ -5,6 +5,7 @@ import * as cheerio from 'cheerio';
 import {response} from "express";
 import http2 from "http2";
 import { setTimeout } from 'timers/promises';
+import {GetWebConfig, WebConfig} from "../config.js";
 /*
     For anyone else who may be looking for why their FA submission upload fails, FA is a stickler about having the www subdomain! If it's missing you'll get a 301, followed by 302 redirect!
 */
@@ -78,10 +79,11 @@ async function UploadVersion(apiClient: AxiosInstance, post: Post, version: Imag
 
 export const HandlePost= async (post: Post): Promise<PostStatus> => {
     try{
+        const config: WebConfig = GetWebConfig();
         const apiClient:AxiosInstance = axios.create({
             baseURL: "https://www.furaffinity.net",
             headers: {
-                "Cookie": `b=${process.env.FA_COOKIE_B}; a=${process.env.FA_COOKIE_A};`,
+                "Cookie": `b=${config.FA_TOKEN_A}; a=${config.FA_TOKEN_B};`,
                 "Origin": "https://www.furaffinity.net",
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36'
             }

@@ -30,7 +30,7 @@ router.get("/", (req, res) => {
 
 router.get("/upload", (req, res) => {
     let check: FluxerRequest = req as FluxerRequest;
-    if(check.fluxer_user === undefined){
+    if(!check.fluxer_user){
         res.redirect("/gallery");
         return;
     }

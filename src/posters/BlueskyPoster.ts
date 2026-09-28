@@ -5,12 +5,14 @@ import fs from "fs";
 import {PasswordSession} from "@atproto/lex-password-session";
 import * as com from "../lexicons/com.js";
 import * as app from "../lexicons/app.js";
+import {GetWebConfig, WebConfig} from "../config.js";
 
 async function Authenticate(): Promise<Client> {
+    const config: WebConfig = GetWebConfig();
     const account: PasswordSession = await PasswordSession.login({
         service: "https://bsky.social",
-        identifier: "srcfur.bsky.social",
-        password: process.env.BSKY_PASSWORD as string,
+        identifier: config.BLUESKY_HANDLE,
+        password: config.BLUESKY_PASSWORD,
     });
     return new Client(account);
 }

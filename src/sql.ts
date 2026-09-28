@@ -19,10 +19,11 @@ export interface Comment {
 if(process.env.DB_PATH == undefined){
     throw new Error("NO DATABASE_PATH SPECIFIED!")
 }
+
 export const database = new Database(process.env.DB_PATH, {});
 
-fs.readdir("sqlsetup/", (err, files) => {
-    if (err) throw err;
+export const SetupDatabase = ()=>{
+    let files = fs.readdirSync("sqlsetup/");
     database.prepare("CREATE TABLE IF NOT EXISTS __migrations__(key TEXT PRIMARY KEY NOT NULL, step INTEGER NOT NULL);").run();
     let currentStep: number | undefined = database.prepare("SELECT step FROM __migrations__ WHERE key='last'").get() as number | undefined;
     if(currentStep == undefined || currentStep == 0){
@@ -53,7 +54,7 @@ fs.readdir("sqlsetup/", (err, files) => {
     database.prepare("UPDATE __migrations__ SET step=? WHERE key='last'").run(currentStep);
     console.log(currentStep);
     console.log("Database initialized");
-})
+}
 
 export function CreateGalleryPost(PostName:string, PostDescription:string){
     let isoString = new Date(Date.now()).toISOString();
