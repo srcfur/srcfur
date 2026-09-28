@@ -7,6 +7,8 @@ html
     title="Srcfur - " + title
     link(rel='stylesheet', href='/stylesheets/style.css')
     script(src="/javascripts/API.js")
+    for tag in generatedTags
+      meta(property=tag.property content=tag.content)
   body
     #navBar
       .header

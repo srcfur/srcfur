@@ -63,6 +63,10 @@ export function CreateGalleryPost(PostName:string, PostDescription:string){
     return query.get(isoString, PostName, PostDescription) as GalleryPostData;
 }
 
+export function GetGalleryPost(postId: number){
+    return database.prepare("SELECT * FROM gallery_posts WHERE id=? LIMIT 1").get(postId) as GalleryPostData;
+}
+
 export function AppendImageToGalleryPostData(Post: GalleryPostData, ImagePath: string){
     return AppendImageToGalleryPost(Post.id, ImagePath);
 }
