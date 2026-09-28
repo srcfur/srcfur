@@ -10,6 +10,23 @@ export const router: Router = express.Router();
 interface GalleryQuery {
     page?: number;
     tags?: string[];
+    post?: number;
+}
+
+class EmbedMeta {
+    Properties: Map<string, string>;
+    GetBody(): { property: string; content: string }[] {
+        let body: {property: string, content: string}[] = [];
+        for(let i = 0; i < this.Properties.size; i++){ body.push({property: this.Properties.keys().toArray()[i], content: this.Properties.values().toArray()[i]}); }
+        return body;
+    }
+    AddProperty(property: string, content: string): EmbedMeta {
+        this.Properties.set(property, content);
+        return this;
+    }
+    constructor() {
+        this.Properties = new Map();
+    }
 }
 
 //https://web.canary.fluxer.app/oauth2/authorize?client_id=1552111823480696833&scope=identify+email&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauthorize&response_type=code
@@ -37,11 +54,29 @@ router.get("/upload", (req, res) => {
     res.send(pug.renderFile("views/upload_portal.pug", { title: "Upload Portal", loginlink: loginLink() }));
 })
 
+router.get("/config", (req, res) => {
+    let check: FluxerRequest = req as FluxerRequest;
+    if(!check.fluxer_user){
+        res.redirect("/gallery");
+        return;
+    }
+    res.send(pug.renderFile("views/config.pug", { title: "Configuration Panel", loginlink: loginLink() }));
+})
+
 router.get("/gallery", (req: Request<{}, {}, {}, GalleryQuery>, res) => {
+    let embedData = new EmbedMeta();
+    if(req.query.post){
+        let postData = sql.GetGalleryPost(req.query.post);
+        let images = sql.GetImagesFromGalleryPost(req.query.post);
+        embedData.AddProperty("og:title", postData.post_name)
+        embedData.AddProperty("twitter:description", postData.post_description);
+        embedData.AddProperty("og:image", (req.protocol + ':' + req.host + (images[0] as any).image_path as string).replaceAll('\\', '/'));
+        embedData.AddProperty("twitter:card", "summary_large_image")
+    }
     let check: FluxerRequest = req as FluxerRequest;
     let auth:boolean = false;
     if(check.fluxer_user !== undefined){
         auth = IsUserAllowedToPost(check.fluxer_user);
     }
-    res.send(pug.renderFile("views/gallery.pug", { title: "Gallery", loginlink: loginLink(), isAuthed: auth }));
+    res.send(pug.renderFile("views/gallery.pug", { title: "Gallery", loginlink: loginLink(), isAuthed: auth, generatedTags: embedData.GetBody() }));
 })
