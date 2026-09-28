@@ -103,7 +103,7 @@ function buildPostPreview(context){
         }
         let specialContext = await response.json();
         expandedContext = Object.assign({}, context, specialContext);
-        setMetaPost(expandedContext);
+        //setMetaPost(expandedContext);
         console.log(expandedContext);
         let template = document.createElement("template");
         template.innerHTML = templates.postpopup(expandedContext);
