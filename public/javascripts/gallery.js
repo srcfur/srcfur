@@ -67,6 +67,24 @@ function build_comments(context, commentSection){
         commentSection.appendChild(template.content.firstElementChild);
     }
 }
+
+function findOrCreateMetaTag(property){
+    let tag = document.querySelector(`meta[property='${property}']`);
+    if(!tag){
+        tag = document.createElement('meta');
+        tag.setAttribute('property', property);
+        document.querySelector('head').appendChild(tag);
+    }
+    return tag;
+}
+
+function setMetaPost(extendedContext){
+    findOrCreateMetaTag("og:title").content = extendedContext.post_name + " - Srcfur";
+    findOrCreateMetaTag("twitter:description").content = extendedContext.post_description;
+    findOrCreateMetaTag("og:image").content = window.location.origin + extendedContext.images[0].image_path;
+    findOrCreateMetaTag("twitter:card").content = "summary_large_image";
+}
+
 function buildPostPreview(context){
     //Our expanded context gets the images and comments and stats and what not :P
     //Basically expands the original context with the full post information!
@@ -85,7 +103,7 @@ function buildPostPreview(context){
         }
         let specialContext = await response.json();
         expandedContext = Object.assign({}, context, specialContext);
-        console.log(specialContext);
+        setMetaPost(expandedContext);
         console.log(expandedContext);
         let template = document.createElement("template");
         template.innerHTML = templates.postpopup(expandedContext);
